@@ -9,7 +9,7 @@ See also:
   * https://serverfault.com/questions/541852/tail-f-on-new-files
   * https://github.com/madivad/retail
 
-I stole the name `retail` from [@madivad] but this new implementation is my own.  His implementation doesn't work on macos, unfortunately.
+I stole the name `retail` from [@madivad](https://github.com/madivad) but this new implementation is my own.  His implementation doesn't work on macos, unfortunately.
 
 # Running
 
