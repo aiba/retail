@@ -1,0 +1,41 @@
+#!/usr/bin/env bb
+
+(require '[clojure.java.io :as io])
+(import '[java.io File InputStream BufferedReader IOException])
+
+(when (not= 1 (count *command-line-args*))
+  (println "usage: retail DIR")
+  (System/exit 1))
+
+(def dir (io/file (first *command-line-args*)))
+(def rt (Runtime/getRuntime))
+
+(defn scan-files []
+  (->> (file-seq dir)
+       (filter (fn [^File f] (.isFile f)))
+       (set)))
+
+(defn dump-streams! [^Process proc]
+  (doseq [s [(.getInputStream proc) (.getErrorStream proc)]]
+    (let [^BufferedReader rdr (io/reader s)]
+      (future
+        (loop []
+          (when-let [l (.readLine rdr)]
+            (println l)
+            (recur)))))))
+
+(defn tail-files! [files]
+  (let [paths (->> files
+                   (sort-by (fn [^File f] (.lastModified f)))
+                   (map (fn [^File f] (.getAbsolutePath f))))]
+    (doto (.exec rt (into-array String (concat ["tail" "-f"] paths)))
+      (dump-streams!))))
+
+(loop [files #{}, proc nil]
+  (let [files' (scan-files)]
+    (if (= files files')
+      (do (Thread/sleep 1000)
+          (recur files' proc))
+      (do (when proc (.destroy proc))
+          (println "\n\n ==== FILES CHANGED ==== \n\n")
+          (recur files' (tail-files files'))))))
