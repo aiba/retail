@@ -38,4 +38,4 @@
           (recur files' proc))
       (do (when proc (.destroy proc))
           (println "\n\n ==== FILES CHANGED ==== \n\n")
-          (recur files' (tail-files files'))))))
+          (recur files' (tail-files! files'))))))
